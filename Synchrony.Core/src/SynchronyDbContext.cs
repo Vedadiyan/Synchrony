@@ -17,6 +17,7 @@ namespace Synchrony.Core
         public event EventHandler<UpdateEventArgs> Update;
         private string connectionString { get; }
         private int timeout { get; }
+        private string databaseName { get; set; }
         public SynchronyDbContext(string connectionString, int timeout)
         {
             this.connectionString = connectionString;
@@ -27,13 +28,19 @@ namespace Synchrony.Core
             using (SqlConnection con = new SqlConnection(connectionString))
             {
                 SqlCommand command = con.CreateCommand();
-                command.CommandText = "SELECT DB_ID('Synchrony')";
+                command.CommandText = "SELECT DB_NAME()";
                 await con.OpenAsync(cancellationToken);
+                databaseName = (string) await command.ExecuteScalarAsync(cancellationToken);
+                command = con.CreateCommand();
+                command.CommandText = "SELECT DB_ID('Synchrony')";
                 object value = await command.ExecuteScalarAsync(cancellationToken);
-                if (value == null)
+                if (value == DBNull.Value)
                 {
                     command = con.CreateCommand();
-                    command.CommandText = "CREATE DATABASE Synchrony; USE [Synchrony]; CREATE TABLE ChangeDataTracker ( Id INT IDENTITY(1,1) PRIMARY KEY NOTT NULL, [Table] NVARCHAR(256) NOT NULL, [LastRead] DATETIME NOT NULL);";
+                    command.CommandText = "CREATE DATABASE [Synchrony];";
+                    await command.ExecuteNonQueryAsync(cancellationToken);
+                    command = con.CreateCommand();
+                    command.CommandText = "USE [Synchrony]; CREATE TABLE ChangeDataTracker ( Id INT IDENTITY(1,1) PRIMARY KEY NOT NULL, [Table] NVARCHAR(256) NOT NULL, [Database] NVARCHAR(256) NOT NULL, [LastRead] DATETIME NOT NULL);";
                     await command.ExecuteNonQueryAsync(cancellationToken);
                 }
             }
@@ -73,7 +80,7 @@ namespace Synchrony.Core
                 using (SqlConnection con = new SqlConnection(connectionString))
                 {
                     SqlCommand command = con.CreateCommand();
-                    command.CommandText = $"SELECT * FROM cdc.{i.CaptureInstance}_CT ChangeSet JOIN [Synchrony].dbo.ChangeDataTracker PreviousRead on sys.fn_cdc_map_lsn_to_time(ChangeSet.__$start_lsn) > PreviousRead.LastRead WHERE PreviousRead.[Table] = '{i.CaptureInstance}';";
+                    command.CommandText = $"SELECT * FROM cdc.{i.CaptureInstance}_CT ChangeSet JOIN [Synchrony].dbo.ChangeDataTracker PreviousRead on sys.fn_cdc_map_lsn_to_time(ChangeSet.__$start_lsn) > PreviousRead.LastRead WHERE PreviousRead.[Table] = '{i.CaptureInstance}' AND PreviousRead.[Database] = '{databaseName}';";
                     command.CommandTimeout = timeout;
                     await con.OpenAsync(cancellationToken);
                     dataTable.Load(await command.ExecuteReaderAsync(CommandBehavior.CloseConnection, cancellationToken));
@@ -147,7 +154,7 @@ namespace Synchrony.Core
                 using (SqlConnection con = new SqlConnection(connectionString))
                 {
                     SqlCommand command = con.CreateCommand();
-                    command.CommandText = $"UPDATE Synchrony.dbo.ChangeDataTracker SET [LastRead] = GETDATE() WHERE [Table] = '{changeTable.CaptureInstance}'";
+                    command.CommandText = $"UPDATE Synchrony.dbo.ChangeDataTracker SET [LastRead] = GETDATE() WHERE [Table] = '{changeTable.CaptureInstance}' AND [Database] = '{databaseName}'";
                     await con.OpenAsync(cancellationToken);
                     object value = await command.ExecuteScalarAsync(cancellationToken);
                 }
@@ -158,9 +165,9 @@ namespace Synchrony.Core
                 {
                     SqlCommand command = con.CreateCommand();
                     command.CommandText = $@"
-                    IF (SELECT TOP 1 1 FROM Synchrony.dbo.ChangeDataTracker WHERE [Table] ='{changeTable.CaptureInstance}') IS NULL
+                    IF (SELECT TOP 1 1 FROM Synchrony.dbo.ChangeDataTracker WHERE [Table] ='{changeTable.CaptureInstance}' AND [Database] = '{databaseName}') IS NULL
                         BEGIN
-                            INSERT INTO Synchrony.dbo.ChangeDataTracker VALUES('{changeTable.CaptureInstance}', GETDATE())
+                            INSERT INTO Synchrony.dbo.ChangeDataTracker VALUES('{changeTable.CaptureInstance}', '{databaseName}', GETDATE())
                         END
                     ";
                     await con.OpenAsync(cancellationToken);

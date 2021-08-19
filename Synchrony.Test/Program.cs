@@ -10,7 +10,7 @@ namespace Synchrony.Test
     {
         static async Task Main(string[] args)
         {
-            SynchronyDbContext dbContext = new SynchronyDbContext("", 10000);
+            SynchronyDbContext dbContext = new SynchronyDbContext("Data Source=192.168.233.200,7006;Initial Catalog=TestDb;User Id=sa;Password=Pou39148!", 1);
             await dbContext.Initialize(new CancellationToken());
             dbContext.Add += (sender, e) =>
             {
@@ -27,7 +27,8 @@ namespace Synchrony.Test
             Timer timer = new Timer(async (x) =>
             {
                 await dbContext.GetChanges(new CancellationToken());
-            }, null, TimeSpan.Zero, TimeSpan.FromSeconds(2));
+                Console.WriteLine(DateTime.Now);
+            }, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
             Console.ReadLine();
         }
     }
