@@ -10,7 +10,7 @@ namespace Synchrony.Test
     {
         static async Task Main(string[] args)
         {
-
+           
             Console.ReadLine();
         }
     }

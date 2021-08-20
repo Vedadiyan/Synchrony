@@ -100,7 +100,7 @@ namespace Synchrony.Core
             {
                 SqlCommand command = con.CreateCommand();
                 command.CommandText = @$"
-                    IF (SELECT TOP 1 1 FROM {row.Table.TableName} WHERE {synchronizationColumn.ColumnName} = @__$value) == 0
+                    IF (SELECT TOP 1 1 FROM {row.Table.TableName} WHERE {synchronizationColumn.ColumnName} = @__$value) IS NULL
                         {insertScript.ToString()}
                     ELSE 
                         {updateScript.ToString()}
