@@ -80,7 +80,7 @@ namespace Synchrony.Core
                 using (SqlConnection con = new SqlConnection(connectionString))
                 {
                     SqlCommand command = con.CreateCommand();
-                    command.CommandText = $"SELECT * FROM cdc.{i.CaptureInstance}_CT ChangeSet JOIN [Synchrony].dbo.ChangeDataTracker PreviousRead on sys.fn_cdc_map_lsn_to_time(ChangeSet.__$start_lsn) > PreviousRead.LastRead WHERE PreviousRead.[Table] = '{i.CaptureInstance}' AND PreviousRead.[Database] = '{databaseName}';";
+                    command.CommandText = $"SELECT *, sys.fn_cdc_map_lsn_to_time(ChangeSet.__$start_lsn) Timestamp  FROM cdc.{i.CaptureInstance}_CT ChangeSet JOIN [Synchrony].dbo.ChangeDataTracker PreviousRead on sys.fn_cdc_map_lsn_to_time(ChangeSet.__$start_lsn) > PreviousRead.LastRead WHERE PreviousRead.[Table] = '{i.CaptureInstance}' AND PreviousRead.[Database] = '{databaseName}';";
                     command.CommandTimeout = timeout;
                     await con.OpenAsync(cancellationToken);
                     dataTable.Load(await command.ExecuteReaderAsync(CommandBehavior.CloseConnection, cancellationToken));
@@ -151,10 +151,11 @@ namespace Synchrony.Core
                         Update?.Invoke(this, new UpdateEventArgs(changeTable.CaptureInstance, oldRecord, newRecord));
                     }
                 }
+                string maxDatetime = query.Max(x=> x.FirstOrDefault().Field<DateTime>("Timestamp")).ToString("yyyy-MM-dd HH:mm:ss.fff");
                 using (SqlConnection con = new SqlConnection(connectionString))
                 {
                     SqlCommand command = con.CreateCommand();
-                    command.CommandText = $"UPDATE Synchrony.dbo.ChangeDataTracker SET [LastRead] = GETDATE() WHERE [Table] = '{changeTable.CaptureInstance}' AND [Database] = '{databaseName}'";
+                    command.CommandText = $"UPDATE Synchrony.dbo.ChangeDataTracker SET [LastRead] = '{maxDatetime}' WHERE [Table] = '{changeTable.CaptureInstance}' AND [Database] = '{databaseName}'";
                     await con.OpenAsync(cancellationToken);
                     object value = await command.ExecuteScalarAsync(cancellationToken);
                 }
