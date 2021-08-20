@@ -446,4 +446,4 @@ $RECYCLE.BIN/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-Synchrony.Test
+Synchrony.Test/Program.cs

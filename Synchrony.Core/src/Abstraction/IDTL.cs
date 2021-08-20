@@ -8,6 +8,7 @@ namespace Synchrony.Core.Abstraction
     {
         IMap Next { get; }
         Task ApplyAsync(CancellationToken cancellationToken);
+        Task<object> Synchronizer(DataRow row, DataColumn synchronizationColumn, CancellationToken cancellationToken);
         void UseOriginalId(string columnName, SqlDbType sqlDbType);
         DataRow GetInsertedRowFor<T>(T oldId);
     }
