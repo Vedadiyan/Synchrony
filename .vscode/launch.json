@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/Synchrony.Test/bin/Debug/net5.0/Synchrony.Test.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/Synchrony.Test",
+            "program": "${workspaceFolder}/Synchrony.Streaming.NATS/bin/Debug/net5.0/Synchrony.Streaming.NATS.dll",
+            "args": ["--NATS_URL", "nats://127.0.0.1:4222", "--CONNECTION_STRING", "", "--SUBJECT_NAMESPACE", "Test"],
+            "cwd": "${workspaceFolder}/Synchrony.Streaming.NATS",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
             "stopAtEntry": false

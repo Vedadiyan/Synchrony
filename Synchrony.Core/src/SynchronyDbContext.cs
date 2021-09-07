@@ -6,7 +6,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Synchrony.Core.DataModels;
 
 namespace Synchrony.Core
 {

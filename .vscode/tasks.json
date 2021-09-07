@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/Synchrony.Test/Synchrony.Test.csproj",
+                "${workspaceFolder}/Synchrony.Streaming.NATS/Synchrony.Streaming.NATS.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -19,7 +19,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/Synchrony.Test/Synchrony.Test.csproj",
+                "${workspaceFolder}/Synchrony.Streaming.NATS/Synchrony.Streaming.NATS.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -32,7 +32,7 @@
             "args": [
                 "watch",
                 "run",
-                "${workspaceFolder}/Synchrony.Test/Synchrony.Test.csproj",
+                "${workspaceFolder}/Synchrony.Streaming.NATS/Synchrony.Streaming.NATS.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],

@@ -5,6 +5,10 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../Synchrony.Core/Synchrony.Core.csproj" />
+    <ProjectReference Include="../Synchrony.Core/Synchrony.Core.csproj"></ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="NATS.Client" Version="0.12.0" />
+  </ItemGroup>
+
 </Project>

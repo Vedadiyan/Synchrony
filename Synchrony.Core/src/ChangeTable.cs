@@ -1,4 +1,4 @@
-namespace Synchrony.Core.DataModels
+namespace Synchrony.Core
 {
     public class ChangeTable
     {
